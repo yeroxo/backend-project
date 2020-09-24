@@ -20,14 +20,15 @@ public class MainServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String sPath = req.getParameter("path");
-        sPath = sPath == null || sPath.length() == 0 ? DEFAULT_PATH : sPath;
+        String getPath = req.getParameter("path");
+        getPath = getPath == null || getPath.length() == 0 ? DEFAULT_PATH : getPath;
 
-        Path path = Paths.get(sPath);
-        File file = path.toFile();
+        Path path = Paths.get(getPath);
+        FileModel file = new FileModel(path.toFile());
+        path.getParent();
 
         if (file.isDirectory()) {
-            req.setAttribute("now", new SimpleDateFormat("MM.dd.yyyy HH:mm:ss").format(new Date()));
+            req.setAttribute("dateNow", new SimpleDateFormat("MM.dd.yyyy HH:mm:ss").format(new Date()));
             req.setAttribute("path", path);
             req.setAttribute("files", scan(path));
             req.getRequestDispatcher("mypage.jsp").forward(req, resp);
@@ -36,14 +37,15 @@ public class MainServlet extends HttpServlet {
         if (file.isFile()) {
             resp.setHeader("Content-Type", "application/octet-stream");
             resp.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", file.getName()));
-            new FileReader(file).transferTo(resp.getWriter());
+            new FileReader(file.getFile()).transferTo(resp.getWriter());
         }
     }
 
-    protected List<File> scan(Path path) throws IOException {
+    protected List<FileModel> scan(Path path) throws IOException {
         return Files.list(path)
                 .map(Path::toFile)
                 .sorted(this::comparator)
+                .map(this::fileFormatter)
                 .collect(Collectors.toList());
     }
 
@@ -52,4 +54,9 @@ public class MainServlet extends HttpServlet {
                 ? a.compareTo(b)
                 : Boolean.compare(a.isFile(), b.isFile());
     }
+
+    protected FileModel fileFormatter(File a){
+        return new FileModel(a);
+    }
 }
+

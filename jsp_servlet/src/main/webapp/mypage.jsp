@@ -7,9 +7,18 @@
     <title>Файлы</title>
 </head>
 <body>
-<div>${now}</div>
+<div>${dateNow}</div>
 <h1>${path}</h1>
-<hr>
+<j:if test="${path.getParent() != null}">
+    <tr>
+        <td>
+            <a href="/files?path=${path.getParent()}">
+                <img src="https://icons.iconarchive.com/icons/custom-icon-design/flatastic-10/16/Open-file-icon.png">
+                <span>Вверх</span>
+            </a>
+        </td>
+    </tr>
+</j:if>
 
 <table>
     <tr>
@@ -18,34 +27,24 @@
         <th>Дата</th>
     </tr>
 
-    <j:if test="${path.getParent() != null}">
-        <tr>
-            <td>
-                <a href="/files?path=${path.getParent()}">
-                    <img src="https://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/16/Folder-icon.png"
-                         alt="DIR">
-                    <span>..</span>
-                </a>
-            </td>
-        </tr>
-    </j:if>
-
     <j:forEach items="${files}" var="file">
         <j:if test="${!file.isHidden()}">
             <tr>
                 <td>
                     <a href="/files?path=${file.getAbsolutePath()}">
                         <j:if test="${file.isDirectory()}">
-                            <img src="https://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/16/Folder-icon.png"
-                                 alt="DIR">
+                            <img src="https://icons.iconarchive.com/icons/cornmanthe3rd/plex/16/System-documents-icon.png">
                         </j:if>
                         <j:if test="${file.isFile()}">
-                            <img src="https://icons.iconarchive.com/icons/royalflushxx/systematrix/16/Document-icon.png"
-                                 alt="FILE">
+                            <img src="https://icons.iconarchive.com/icons/iconsmind/outline/16/File-icon.png">
                         </j:if>
                         <span>${file.getName()}</span>
                     </a>
                 </td>
+                <j:if test="${file.isFile()}">
+                    <td>${file.getSize()}</td>
+                    <td>${file.getTimeCreated()}</td>
+                </j:if>
             </tr>
         </j:if>
     </j:forEach>
